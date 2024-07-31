@@ -1,60 +1,57 @@
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <fstream> // std::ifstream
+#include <string>  // std::string
+#include <vector>  // std::vector
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp> // nlohmann::json, nlohmann::json::parse
 
-#include "agent/Agent.h"
-#include "game/Game.h"
-#include "game_analyzer/GameAnalyzer.h"
-#include "helpers/helper_all.h"
+#include "agent/Agent.h"                // Agent
+#include "game/Game.h"                  // Game
+#include "game_analyzer/GameAnalyzer.h" // GameAnalyzer
+#include "helpers/helper_all.h"         // readParameters, initializePlayers
 
 int main()
 {
-    // Parameters of the program
+    // Parameters of the simulation
     const int numberOfGames{100000};
-    const std::vector<std::string> gameTypes{
-        "R2_intra/R2_intra/",
-        "R1/R1/"};
-
-    const std::string pathDataFigures{"../../data_figures/"};
-
-    // Parameters of the game
     const int numberOfRounds{20};
     const int numberOfPlayers{5};
 
-    for (const auto &gameType : gameTypes)
-    {
-        std::cout << gameType << "\n";
+    const std::string pathData{"./data/example/"};
 
-        const std::string pathParameters{pathDataFigures + gameType + "model/parameters/"};
-        const std::vector<double> fractionPlayersProfiles{readParameters(pathParameters + "players_profiles.txt")};
-        const std::vector<double> parametersOpenings{readParameters(pathParameters + "cells.txt")};
-        const nlohmann::json parametersRatings{nlohmann::json::parse(std::ifstream(pathParameters + "stars.json"))};
+    // Read the parameters of the agents
+    const std::string pathParameters{pathData + "model/parameters/"};
+    const std::vector<double> fractionPlayersProfiles{readParameters(pathParameters + "players_profiles.txt")};
+    const std::vector<double> parametersOpenings{readParameters(pathParameters + "cells.txt")};
+    const nlohmann::json parametersRatings{nlohmann::json::parse(std::ifstream(pathParameters + "stars.json"))};
 
-        GameAnalyzer analyzer(numberOfGames, numberOfPlayers);
+    // Initialize the analyzer
+    GameAnalyzer analyzer(numberOfGames, numberOfPlayers);
 
+    // Loop over all repetitions of the game
 #pragma omp parallel for
-        for (int iGame = 0; iGame < numberOfGames; ++iGame)
+    for (int iGame = 0; iGame < numberOfGames; ++iGame)
+    {
+        // Initialize the game
+        Game game(numberOfRounds, numberOfPlayers);
+
+        // Initialize the agents
+        std::vector<Agent> agents{initializePlayers(numberOfPlayers, fractionPlayersProfiles, game, parametersOpenings, parametersRatings)};
+
+        // Play the game
+        for (int iRound{0}; iRound < numberOfRounds; ++iRound)
         {
-            Game game(numberOfRounds, numberOfPlayers);
-
-            std::vector<Agent> agents{initializePlayers(numberOfPlayers, fractionPlayersProfiles, game, parametersOpenings, parametersRatings)};
-
-            for (int iRound{0}; iRound < numberOfRounds; ++iRound)
+            for (auto &agent : agents)
             {
-                for (auto &agent : agents)
-                {
-                    agent.playARound();
-                }
+                agent.playARound();
             }
-
-            analyzer.analyzeGame(iGame, game, agents);
         }
 
-        analyzer.saveObservables(pathDataFigures + gameType + "model/observables/");
+        // Analyze the game
+        analyzer.analyzeGame(iGame, game, agents);
     }
+
+    // Average the observables over all repetition and save them
+    analyzer.saveObservables(pathData + "model/observables/");
 
     return 0;
 }

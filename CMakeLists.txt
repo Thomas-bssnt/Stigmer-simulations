@@ -26,15 +26,7 @@ add_subdirectory(src/helpers)
 # List of main source files
 set(MAIN_SOURCES
     src/main_MC.cpp
-    src/main_MC_opt_rk.cpp
-    src/main_MC_opt_S_group.cpp
-    src/main_MC_opt_S_solo.cpp
     src/main_obs.cpp
-    src/main_obs_pred_20_players.cpp
-    src/main_obs_pred_100_rounds.cpp
-    src/main_obs_opt_rk.cpp
-    src/main_obs_opt_S_group.cpp
-    src/main_obs_opt_S_solo.cpp
 )
 
 # List of libraries to link

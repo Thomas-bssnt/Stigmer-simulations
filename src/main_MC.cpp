@@ -1,16 +1,15 @@
-#include <ctime>   // std::time_t, std::difftime, std::time
-#include <fstream> // std::ifstream, std::ofstream
-#include <iostream>
-#include <string>
-#include <vector>
+#include <fstream>  // std::ifstream, std::ofstream, std::ios, std::getline
+#include <iostream> // std::cerr
+#include <string>   // std::string
+#include <vector>   // std::vector
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp> // nlohmann::json, nlohmann::json::parse
 
-#include "agent/Agent.h"
-#include "game/Game.h"
-#include "game_analyzer/GameAnalyzer.h"
-#include "helpers/helper_all.h"
-#include "random/myRandom.h"
+#include "agent/Agent.h"                // Agent
+#include "game/Game.h"                  // Game
+#include "game_analyzer/GameAnalyzer.h" // GameAnalyzer
+#include "helpers/helper_all.h"         // readParameters, initializePlayers
+#include "random/myRandom.h"            // myRandom::rand, myRandom::randIndex
 
 std::vector<double> readValuesObservable(const std::string &filePath)
 {
@@ -220,32 +219,29 @@ void doMonteCarloStep(
 
 int main()
 {
-    // Parameters of the program
+    // Parameters of the Monte Carlo simulation
     const int numberOfGamesInEachStep{100000};
     const std::vector<bool> parametersToChange{true, true, true, true, true, true, true, true};
-    // const std::string gameType{"R2_intra/R2_intra/"};
-    const std::string gameType{"R1/R1/"};
 
-    // Parameters of the game
     const int numberOfRounds{20};
     const int numberOfPlayers{5};
 
-    // Path of the in and out files
-    const std::string pathDataFigures{"../../data_figures/"};
-    const std::string pathObservables{pathDataFigures + gameType + "exp/observables/"};
+    const std::string pathData{"./data/example/"};
 
-    // Get parameters
-    const std::string pathParameters{pathDataFigures + gameType + "model/parameters/"};
+    const std::string pathParameters{pathData + "model/parameters/"};
+    const std::string pathObservables{pathData + "exp/observables/"};
+
+    // Read the parameters of the agents
     const std::vector<double> fractionPlayersProfiles{readParameters(pathParameters + "players_profiles.txt")};
     const nlohmann::json parametersRatings{nlohmann::json::parse(std::ifstream(pathParameters + "stars.json"))};
 
-    // Initialization
+    // Initialization of the MC simulation
     std::vector<double> bestParametersOpenings{readParameters(pathParameters + "cells.txt")};
     double bestAverageError{getAverageError(numberOfGamesInEachStep, numberOfRounds, numberOfPlayers, bestParametersOpenings,
                                             parametersRatings, fractionPlayersProfiles, pathObservables)};
     printCurrentState(bestParametersOpenings, bestAverageError);
 
-    // MC simulation
+    // Loop over all steps of the MC simulation
     while (true)
     {
         doMonteCarloStep(parametersToChange, bestParametersOpenings, bestAverageError, numberOfGamesInEachStep,
