@@ -228,6 +228,13 @@ void doMonteCarloStep(
 
 int main()
 {
+    // Seed for reproducibility (set to 0 to disable and use random seed)
+    const std::uint_fast32_t seed{42};
+    if (seed != 0)
+    {
+        myRandom::seed(seed);
+    }
+
     // Parameters of the Monte Carlo simulation
     const int numberOfGamesInEachStep{100000};
     const std::vector<bool> parametersToChange{true, true, true, true, true, true, true, true};

@@ -14,9 +14,17 @@
 #include "game/Game.h"                  // Game
 #include "game_analyzer/GameAnalyzer.h" // GameAnalyzer
 #include "helpers/helper_all.h"         // readParameters, initializePlayers
+#include "random/myRandom.h"            // myRandom::seed
 
 int main()
 {
+    // Seed for reproducibility (set to 0 to disable and use random seed)
+    const std::uint_fast32_t seed{42};
+    if (seed != 0)
+    {
+        myRandom::seed(seed);
+    }
+
     // Parameters of the simulation
     const int numberOfGames{100000};
     const int numberOfRounds{20};

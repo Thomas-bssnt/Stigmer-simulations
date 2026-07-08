@@ -10,7 +10,22 @@ namespace myRandom
     {
         thread_local static std::random_device randomDevice;
         thread_local static std::mt19937 engine(randomDevice());
+
+        /// If non-zero, new threads use this as their base seed (combined with thread id).
+        inline std::uint_fast32_t globalSeed{0};
+        inline bool globalSeedSet{false};
     }
+
+    /**
+     * @brief Seed the random number generator for reproducible runs.
+     *
+     * Must be called before any parallel region. Each OpenMP thread will
+     * derive its own seed from `seed + omp_get_thread_num()` so that
+     * runs are reproducible yet threads remain independent.
+     *
+     * @param seed The base seed value.
+     */
+    void seed(std::uint_fast32_t seed);
 
     // For reals
 

@@ -1,6 +1,29 @@
 #include <random>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "random/myRandom.h"
+
+void myRandom::seed(std::uint_fast32_t seed)
+{
+    detail::globalSeed = seed;
+    detail::globalSeedSet = true;
+
+    // Seed every thread in the OpenMP thread pool so that the
+    // thread-local engines used later in parallel-for loops are
+    // deterministic.  Each thread gets a unique seed derived from the
+    // base seed and its thread id.
+#pragma omp parallel
+    {
+#ifdef _OPENMP
+        detail::engine.seed(seed + static_cast<std::uint_fast32_t>(omp_get_thread_num()));
+#else
+        detail::engine.seed(seed);
+#endif
+    }
+}
 
 double myRandom::rand(double low, double high)
 {
