@@ -22,8 +22,8 @@ public:
      * @param cellsPlayed The cells already played during the current round.
      * @return The index of the cell chosen.
      */
-    int choseCell(int round, const std::vector<double> &colors, const std::vector<std::vector<Cell>> &bestCells,
-                  const std::vector<Cell> &cellsPlayed);
+    int chooseCell(int round, const std::vector<double> &colors, const std::vector<std::vector<Cell>> &bestCells,
+                   const std::vector<Cell> &cellsPlayed);
 
     std::vector<double> getParameters() const;
 

@@ -49,8 +49,8 @@ void OpeningStrategy::updateExploringProbabilities(const std::vector<double> &co
     }
 }
 
-int OpeningStrategy::choseCell(int round, const std::vector<double> &colors, const std::vector<std::vector<Cell>> &bestCells,
-                               const std::vector<Cell> &cellsPlayed)
+int OpeningStrategy::chooseCell(int round, const std::vector<double> &colors, const std::vector<std::vector<Cell>> &bestCells,
+                                const std::vector<Cell> &cellsPlayed)
 {
     // If the round has changed, then the probabilities of exploring each cell must be updated
     if (round != m_round)

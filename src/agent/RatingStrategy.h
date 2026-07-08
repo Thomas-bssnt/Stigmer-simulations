@@ -66,7 +66,7 @@ public:
      * @param value The value of the cell being rated.
      * @return The rating drawn from the probability distribution.
      */
-    int choseRating(int value) const;
+    int chooseRating(int value) const;
 
     /**
      * @brief Get the agent type associated with the strategy.

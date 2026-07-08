@@ -49,9 +49,9 @@ void Agent::playARound()
     std::vector<Cell> cellsPlayed;
     for (int iTurn{0}; iTurn < m_numberOfTurns; ++iTurn)
     {
-        const int iCell{m_openingStrategy.choseCell(m_round, mp_Game->getColors(), m_bestCells, cellsPlayed)};
+        const int iCell{m_openingStrategy.chooseCell(m_round, mp_Game->getColors(), m_bestCells, cellsPlayed)};
         const int vCell{mp_Game->openCell(m_iAgent, iCell)};
-        mp_Game->rateCell(m_iAgent, m_ratingStrategy.choseRating(vCell));
+        mp_Game->rateCell(m_iAgent, m_ratingStrategy.chooseRating(vCell));
         cellsPlayed.push_back({iCell, vCell});
     }
     updateBestCells(cellsPlayed);

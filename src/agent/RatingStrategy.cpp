@@ -27,7 +27,7 @@ RatingStrategy::RatingStrategy(const std::vector<double> &parameters, const std:
 {
 }
 
-int RatingStrategy::choseRating(int value) const
+int RatingStrategy::chooseRating(int value) const
 {
     return myRandom::choice(m_ratings, computeProbabilities(value));
 }
