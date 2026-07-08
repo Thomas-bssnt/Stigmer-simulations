@@ -8,7 +8,10 @@ project(Stigmer_simulation)
 set(CMAKE_CXX_STANDARD 17)
 
 # Set C++ compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+
+# Find OpenMP
+find_package(OpenMP REQUIRED)
 
 # Include directories
 include_directories(
@@ -36,7 +39,7 @@ set(LIBRARIES
     RandomLibrary
     GameAnalyzerLibrary
     HelpersLibrary
-    -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
+    OpenMP::OpenMP_CXX
 )
 
 # Create executables for each source file
