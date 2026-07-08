@@ -1,3 +1,9 @@
+/**
+ * @file main_obs.cpp
+ * @brief Observables entry point: runs many simulated games with the calibrated agents and writes
+ *        the averaged observables to disk.
+ */
+
 #include <fstream> // std::ifstream
 #include <string>  // std::string
 #include <vector>  // std::vector

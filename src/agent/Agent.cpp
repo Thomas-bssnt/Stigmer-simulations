@@ -15,7 +15,7 @@ Agent::Agent(Game *pGame,
              const OpeningStrategy &openingStrategy,
              const RatingStrategy &ratingStrategy)
     : mp_Game{pGame},
-      m_iAgent{mp_Game->getPlayerId()},
+      m_iAgent{mp_Game->registerPlayer()},
       m_numberOfTurns{mp_Game->getNumberOfTurns()},
       m_numberOfCells{mp_Game->getNumberOfCells()},
       m_openingStrategy{openingStrategy},
@@ -36,7 +36,7 @@ Agent::Agent(const OpeningStrategy &openingStrategy,
 void Agent::assignToGame(Game *pGame)
 {
     mp_Game = pGame;
-    m_iAgent = mp_Game->getPlayerId();
+    m_iAgent = mp_Game->registerPlayer();
     m_numberOfTurns = mp_Game->getNumberOfTurns();
     m_numberOfCells = mp_Game->getNumberOfCells();
     m_round = 0;

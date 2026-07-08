@@ -1,3 +1,8 @@
+/**
+ * @file main_MC.cpp
+ * @brief Monte Carlo entry point: fits agent parameters against experimental observables.
+ */
+
 #include <fstream>  // std::ifstream, std::ofstream, std::ios, std::getline
 #include <iostream> // std::cerr
 #include <string>   // std::string

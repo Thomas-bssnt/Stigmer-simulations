@@ -23,13 +23,6 @@ OpeningStrategy::OpeningStrategy(const std::vector<double> &parametersOpenings)
 {
 }
 
-/*
- * Compute the probability of exploring each cell. If there is no rating in the map, then all cells have the same
- * probability of being explored
- *
- * @param colors the percentage of ratings in each cell.
- * @return the probability of exploring each cell.
- */
 void OpeningStrategy::updateExploringProbabilities(const std::vector<double> &colors)
 {
     const int numberOfCells{static_cast<int>(colors.size())};
@@ -56,15 +49,6 @@ void OpeningStrategy::updateExploringProbabilities(const std::vector<double> &co
     }
 }
 
-/*
- * Chose a cell by replaying the best cell played in the game or by exploring
- *
- * @param round the round of the game
- * @param bestCells the vector of the best cells played
- * @param cellsPlayed the vector of the cells played during the round
- * @param exploringProbabilities the vector of the probabilities of exploring each cell
- * @return the index of the cell chosen
- */
 int OpeningStrategy::choseCell(int round, const std::vector<double> &colors, const std::vector<std::vector<Cell>> &bestCells,
                                const std::vector<Cell> &cellsPlayed)
 {
@@ -86,27 +70,11 @@ int OpeningStrategy::choseCell(int round, const std::vector<double> &colors, con
     return chooseACellByExploring(round, m_exploringProbabilities, bestCells, cellsPlayed);
 }
 
-/*
- * Check if the cell should be replayed
- *
- * @param value the value of the cell
- * @param iTurn the turn of the round
- * @return true if the cell should be replayed, false otherwise
- */
 bool OpeningStrategy::shouldReplayCell(int value, int iTurn) const
 {
     return myRandom::rand() < m_parametersReplayCell[iTurn][1] * (value - m_parametersReplayCell[iTurn][0]) / 99.;
 }
 
-/*
- * Choose a cell by exploring
- *
- * @param round the round of the game
- * @param exploringProbabilities the vector of the probabilities of exploring each cell
- * @param bestCells the vector of the best cells played
- * @param cellsPlayed the vector of the cells played during the round
- * @return the index of the cell chosen by exploring
- */
 int OpeningStrategy::chooseACellByExploring(int round, const std::vector<double> &exploringProbabilities,
                                             const std::vector<std::vector<Cell>> &bestCells,
                                             const std::vector<Cell> &cellsPlayed)
@@ -128,13 +96,6 @@ int OpeningStrategy::chooseACellByExploring(int round, const std::vector<double>
     return myRandom::randIndexWeighted(exProba);
 }
 
-/*
- * Convert a 1d vector to a 2d vector
- *
- * @param vector1d the 1d vector
- * @param nRows the number of rows of the 2d vector
- * @return the 2d vector
- */
 std::vector<std::vector<double>> OpeningStrategy::to2d(const std::vector<double> &vector1d, const int nRows)
 {
     if (vector1d.size() % nRows != 0)

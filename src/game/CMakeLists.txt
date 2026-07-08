@@ -10,8 +10,8 @@ set(GAME_SOURCES
 # List header files for the game directory
 set(GAME_HEADERS
     Game.h
-    Map.cpp
-    Rule.cpp
+    Map.h
+    Rule.h
 )
 
 # Create a library for the game sources

@@ -55,7 +55,8 @@ std::vector<int> Map::generateValues(int numberOfCells, bool random)
     }
 
     std::vector<int> values(numberOfCells, 0);
-    for (int i = 0; i < numberOfCells / baseValues.size(); ++i)
+    const std::size_t repeats{static_cast<std::size_t>(numberOfCells) / baseValues.size()};
+    for (std::size_t i = 0; i < repeats; ++i)
     {
         std::copy(baseValues.begin(), baseValues.end(), values.begin() + i * baseValues.size());
     }

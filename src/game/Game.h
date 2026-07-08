@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -24,39 +24,77 @@ public:
 
     Game(int numberOfRounds, int numberOfPlayers);
 
+    /**
+     * @brief Open a cell for a given player.
+     *
+     * @param playerId The identifier of the player.
+     * @param iCell The index of the cell to open.
+     * @return The value of the cell.
+     */
     int openCell(int playerId, int iCell);
 
+    /**
+     * @brief Rate the cell that was just opened by the given player.
+     *
+     * @param playerId The identifier of the player.
+     * @param numberOfRatings The number of stars to assign to the cell.
+     */
     void rateCell(int playerId, int numberOfRatings);
 
     Game *getAddress();
 
-    int getPlayerId();
+    /**
+     * @brief Assign a unique identifier to a player.
+     *
+     * This method should be called once per player.
+     *
+     * @return The assigned player identifier.
+     */
+    int registerPlayer();
 
-    const std::vector<double> &getColors() const;
+    [[nodiscard]] const std::vector<double> &getColors() const;
 
-    int getScoreOfPlayer(int playerId) const;
+    [[nodiscard]] int getScoreOfPlayer(int playerId) const;
 
-    int getCurrentRound() const;
+    [[nodiscard]] int getCurrentRound() const;
 
-    int getNumberOfRounds() const;
+    [[nodiscard]] int getNumberOfRounds() const;
 
-    int getNumberOfTurns() const;
+    [[nodiscard]] int getNumberOfTurns() const;
 
-    int getNumberOfCells() const;
+    [[nodiscard]] int getNumberOfCells() const;
 
 private:
+    /**
+     * @brief Advance to the next round and update the distributions and scores.
+     */
     void changeRound();
 
+    /**
+     * @brief Update the color map used by players.
+     */
     void updateColors();
 
+    /**
+     * @brief Update the scores of the players.
+     */
     void updateScores();
 
+    /**
+     * @brief Check if a player has already opened a given cell during the current round.
+     *
+     * @param playerId The identifier of the player.
+     * @param iCell The index of the cell.
+     * @return `true` if the player has already opened the cell during the round.
+     */
     bool hasThePlayerOpenedTheCellDuringTheRound(int playerId, int iCell) const;
 
+    /**
+     * @brief Check if all players have played their turns for the current round.
+     *
+     * @return `true` if all players have played their turns.
+     */
     bool haveAllPlayersPlayedTheirTurns() const;
-
-    template <typename T>
-    static std::vector<double> normalize(const std::vector<T> &vector);
 
     // Constant variables
     const int m_numberOfRounds;
@@ -80,15 +118,10 @@ private:
     std::vector<int> m_numberOfRatingsRemaining;
 };
 
-class GameException : public std::exception
+class GameException : public std::runtime_error
 {
 public:
-    GameException(const std::string &error) : m_error{error} {}
-
-    const char *what() const noexcept override { return m_error.c_str(); }
-
-private:
-    std::string m_error;
+    using std::runtime_error::runtime_error;
 };
 
 #endif

@@ -5,24 +5,26 @@
 
 #include "game/Rule.h"
 
-Rule::Rule(const RuleNumber &ruleNumber)
-    : m_ruleNumber{ruleNumber}
+Rule::Rule(RuleNumber ruleNumber)
+    : m_ruleNumber{ruleNumber},
+      m_minRating{0},
+      m_maxRating{5},
+      m_maxRatingPerRound{maxRatingPerRoundFor(ruleNumber)}
 {
-    m_minRating = 0;
-    m_maxRating = 5;
-    switch (m_ruleNumber)
+}
+
+int Rule::maxRatingPerRoundFor(RuleNumber ruleNumber)
+{
+    switch (ruleNumber)
     {
     case RuleNumber::Rule1:
     case RuleNumber::Rule2:
-        m_maxRatingPerRound = 15;
-        break;
+        return 15;
     case RuleNumber::Rule3:
     case RuleNumber::Rule4:
-        m_maxRatingPerRound = 8;
-        break;
-    default:
-        throw std::invalid_argument{"Invalid rule number"};
+        return 8;
     }
+    throw std::invalid_argument{"Invalid rule number"};
 }
 
 int Rule::calculateScore(const std::vector<int> &values, const std::vector<int> &stars) const
@@ -39,9 +41,13 @@ int Rule::calculateScore(const std::vector<int> &values, const std::vector<int> 
         return std::inner_product(values.begin(), values.end(), stars.begin(), 0);
 
     case RuleNumber::Rule4:
-        return std::inner_product(values.begin(), values.end(), stars.begin(), 0) +
-               std::accumulate(stars.begin(), stars.end(), m_maxRatingPerRound, std::minus<>()) * 50;
+    {
+        const int used = std::accumulate(stars.begin(), stars.end(), 0);
+        const int leftover = m_maxRatingPerRound - used;
+        return std::inner_product(values.begin(), values.end(), stars.begin(), 0) + leftover * 50;
     }
+    }
+    throw std::invalid_argument{"Invalid rule number"};
 }
 
 bool Rule::isValidRating(int rating) const

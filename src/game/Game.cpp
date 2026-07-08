@@ -1,4 +1,4 @@
-#include <algorithm> // std::all_of, std::any_of, std::transform
+#include <algorithm> // std::all_of, std::any_of, std::fill, std::transform
 #include <cmath>     // std::isnan
 #include <fstream>   // std::ofstream
 #include <numeric>   // std::accumulate
@@ -7,6 +7,36 @@
 #include "game/Game.h"
 #include "game/Map.h"
 #include "game/Rule.h"
+
+namespace
+{
+    // TODO: Change this legend parce que ce n'est pas vraiment la norme L1
+    /**
+     * @brief Normalize a vector by dividing each element by the sum of its elements.
+     *
+     * @note All elements of the vector must be non-negative.
+     *
+     * @param vector The vector to normalize.
+     * @return The normalized vector. If the sum of the input is 0, a vector of zeros of the same size is
+     *         returned.
+     */
+    template <typename T>
+    std::vector<double> normalize(const std::vector<T> &vector)
+    {
+        const double sum{std::accumulate(vector.begin(), vector.end(), 0.)};
+
+        if (sum == 0.)
+        {
+            return std::vector<double>(vector.size(), 0.);
+        }
+
+        std::vector<double> normalizedVector(vector.size());
+        std::transform(vector.begin(), vector.end(), normalizedVector.begin(),
+                       [sum](const T &value)
+                       { return static_cast<double>(value) / sum; });
+        return normalizedVector;
+    }
+} // namespace
 
 Game::Game(int numberOfRounds,
            int numberOfTurns,
@@ -25,9 +55,9 @@ Game::Game(int numberOfRounds,
       m_playerCount{0},
       //
       m_iRound{0},
-      m_rMap{std::vector<double>(m_map.getNumberOfCells(), 0.)},
-      m_colors{std::vector<double>(m_map.getNumberOfCells(), 0.)},
-      m_scores{std::vector<int>(m_map.getNumberOfCells(), 0)},
+      m_rMap(m_map.getNumberOfCells(), 0.),
+      m_colors(m_map.getNumberOfCells(), 0.),
+      m_scores(m_map.getNumberOfCells(), 0),
       m_iCellOpened{std::vector<std::vector<std::vector<int>>>(
           m_numberOfPlayers, std::vector<std::vector<int>>(m_numberOfRounds, std::vector<int>(numberOfTurns, 0)))},
       m_vCellOpened{std::vector<std::vector<std::vector<int>>>(
@@ -55,12 +85,6 @@ Game::Game(int numberOfRounds, int numberOfPlayers)
 {
 }
 
-/*
- * Open a cell.
- * @param iPlayer the player number
- * @param iCell the cell number
- * @return the value of the cell
- */
 int Game::openCell(int iPlayer, int iCell)
 {
     if (m_iRound >= m_numberOfRounds)
@@ -96,11 +120,6 @@ int Game::openCell(int iPlayer, int iCell)
     return vCell;
 }
 
-/*
- * Rate a cell.
- * @param iPlayer the player number
- * @param rating the number of stars
- */
 void Game::rateCell(int iPlayer, int rating)
 {
     if (m_iRound >= m_numberOfRounds)
@@ -142,31 +161,25 @@ void Game::rateCell(int iPlayer, int rating)
     }
 }
 
-/*
- * Change the round and update the distributions and scores.
- */
 void Game::changeRound()
 {
     updateColors();
     updateScores();
 
-    m_iTurn = std::vector<int>(m_numberOfPlayers, 0);
-    m_numberOfRatingsRemaining = std::vector<int>(m_numberOfPlayers, m_rule.getMaxRatingPerRound());
+    std::fill(m_iTurn.begin(), m_iTurn.end(), 0);
+    std::fill(m_numberOfRatingsRemaining.begin(), m_numberOfRatingsRemaining.end(), m_rule.getMaxRatingPerRound());
 
     ++m_iRound;
 }
 
-/*
- * Update the color map used by players.
- */
 void Game::updateColors()
 {
     if (!std::isnan(m_tauEvaporation))
     {
         const double evaporationFactor{1. - 1. / m_tauEvaporation};
-        for (int iCell{0}; iCell < m_rMap.size(); ++iCell)
+        for (double &value : m_rMap)
         {
-            m_rMap[iCell] *= evaporationFactor;
+            value *= evaporationFactor;
         }
     }
 
@@ -182,9 +195,6 @@ void Game::updateColors()
     m_colors = normalize(m_rMap);
 }
 
-/*
- * Update the scores of the players.
- */
 void Game::updateScores()
 {
     for (int iPlayer{0}; iPlayer < m_numberOfPlayers; ++iPlayer)
@@ -193,13 +203,6 @@ void Game::updateScores()
     }
 }
 
-/*
- * Check if a player has already opened a cell during the round.
- *
- * @param iPlayer the player number
- * @param iCell the cell number
- * @return true if the player has already opened the cell during the round.
- */
 bool Game::hasThePlayerOpenedTheCellDuringTheRound(int iPlayer, int iCell) const
 {
     return std::any_of(m_iCellOpened[iPlayer][m_iRound].begin(),
@@ -208,11 +211,6 @@ bool Game::hasThePlayerOpenedTheCellDuringTheRound(int iPlayer, int iCell) const
                        { return iCellOpened == iCell; });
 }
 
-/*
- * Check if all players have played their turns.
- *
- * @return true if all players have played their turns.
- */
 bool Game::haveAllPlayersPlayedTheirTurns() const
 {
     return std::all_of(m_iTurn.begin(),
@@ -226,12 +224,7 @@ Game *Game::getAddress()
     return this;
 }
 
-/*
- * Assigns a unique playerId to a player. This method should only be used once per player.
- *
- * @return the assigned playerId.
- */
-int Game::getPlayerId()
+int Game::registerPlayer()
 {
     return m_playerCount++;
 }
@@ -264,29 +257,4 @@ int Game::getNumberOfTurns() const
 int Game::getNumberOfCells() const
 {
     return m_map.getNumberOfCells();
-}
-
-// TODO: Change this legend parce que ce n'est pas vraiment la norme L1
-/*
- * Calculate the L1 norm of a vector.
- *
- * @param vector the vector to normalize. All elements of the vector must be non-negative.
- * @return the L1 norm of the input vector. If the sum of the values in the vector is 0., then a vector full of 0.
- * is returned.
- */
-template <typename T>
-std::vector<double> Game::normalize(const std::vector<T> &vector)
-{
-    const double sum{std::accumulate(vector.begin(), vector.end(), 0.)};
-
-    if (sum == 0.)
-    {
-        return std::vector<double>(vector.size(), 0.);
-    }
-
-    std::vector<double> normalizedVector(vector.size());
-    std::transform(vector.begin(), vector.end(), normalizedVector.begin(),
-                   [sum](const T &value)
-                   { return static_cast<double>(value) / sum; });
-    return normalizedVector;
 }
