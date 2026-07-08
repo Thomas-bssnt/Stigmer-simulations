@@ -121,6 +121,10 @@ double getAverageError(
     const std::string &pathObservables)
 {
     GameAnalyzer analyzer(numberOfGames, numberOfPlayers);
+    {
+        Game sampleGame(numberOfRounds, numberOfPlayers);
+        analyzer.initialize(sampleGame.getNumberOfRounds(), sampleGame.getNumberOfTurns(), sampleGame.getNumberOfCells());
+    }
 
 #pragma omp parallel for
     for (int iGame = 0; iGame < numberOfGames; ++iGame)

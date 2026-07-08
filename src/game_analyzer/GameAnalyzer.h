@@ -34,9 +34,21 @@ public:
     GameAnalyzer(int numberOfGames, int numberOfPlayers);
 
     /**
+     * @brief Allocate the internal per-game buffers.
+     *
+     * Must be called exactly once, before the first call to `analyzeGame()` and
+     * before any parallel region.
+     *
+     * @param numberOfRounds Number of rounds per game.
+     * @param numberOfTurns  Number of turns per round.
+     * @param numberOfCells  Number of cells on the map.
+     */
+    void initialize(int numberOfRounds, int numberOfTurns, int numberOfCells);
+
+    /**
      * @brief Record the observables of a single game.
      *
-     * On the first call, the analyzer sizes its internal buffers using the game's parameters.
+     * `initialize()` must have been called before the first invocation.
      *
      * @param iGame Index of the game (must be in [0, numberOfGames)).
      * @param game The finished game to analyze.
@@ -117,6 +129,11 @@ private:
      * @param game A game whose parameters seed the buffer sizes.
      */
     void initializeVariables(const Game &game);
+
+    /**
+     * @brief Allocate the internal per-game buffers from already-set dimension members.
+     */
+    void initializeBuffers();
 
     /** @brief Compute visit and rating distributions (instantaneous and cumulative) for a game. */
     void computeDistributions(int iGame, const Game &game);

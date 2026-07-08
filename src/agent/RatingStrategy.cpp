@@ -190,10 +190,31 @@ const AgentType &RatingStrategy::getAgentType() const
 std::vector<double> RatingStrategy::getParameters() const
 {
     const std::string functionType{m_parameters["functionType"].get<std::string>()};
-    if (functionType != "mns_linear")
+    if (functionType == "mns_linear")
     {
-        throw std::invalid_argument("The function type " + functionType + "does not exists.");
+        return m_parameters["mns"].get<std::vector<double>>();
     }
-
-    return m_parameters["mns"];
+    else if (functionType == "tanh")
+    {
+        std::vector<double> params;
+        for (const auto &v : m_parameters["p0"])
+            params.push_back(v.get<double>());
+        for (const auto &v : m_parameters["p5"])
+            params.push_back(v.get<double>());
+        return params;
+    }
+    else if (functionType == "gaussian")
+    {
+        std::vector<double> params;
+        for (const auto &key : {"p1", "p2", "p3", "p4", "p5"})
+        {
+            for (const auto &v : m_parameters[key])
+                params.push_back(v.get<double>());
+        }
+        return params;
+    }
+    else
+    {
+        throw std::invalid_argument("getParameters() is not supported for function type '" + functionType + "'.");
+    }
 }

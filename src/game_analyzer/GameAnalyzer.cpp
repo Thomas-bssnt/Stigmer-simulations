@@ -25,15 +25,21 @@ GameAnalyzer::GameAnalyzer(int numberOfGames, int numberOfPlayers)
     std::iota(m_iAgents.begin(), m_iAgents.end(), 0);
 }
 
+void GameAnalyzer::initialize(int numberOfRounds, int numberOfTurns, int numberOfCells)
+{
+    if (m_isInitialized)
+    {
+        throw std::runtime_error("GameAnalyzer::initialize() called more than once.");
+    }
+    m_numberOfRounds = numberOfRounds;
+    m_numberOfTurns = numberOfTurns;
+    m_numberOfCells = numberOfCells;
+    initializeBuffers();
+    m_isInitialized = true;
+}
+
 void GameAnalyzer::analyzeGame(int iGame, const Game &game, const std::vector<Agent> &agents)
 {
-#pragma omp critical
-    if (!m_isInitialized)
-    {
-        initializeVariables(game);
-        m_isInitialized = true;
-    }
-
     computeDistributions(iGame, game);
 
     int iAgentToAnalyze{0};
@@ -119,10 +125,14 @@ std::vector<double> GameAnalyzer::get_MNS() const { return divide(m_MNS_ratings,
 
 void GameAnalyzer::initializeVariables(const Game &game)
 {
-    m_numberOfRounds = game.m_numberOfRounds;
-    m_numberOfTurns = game.m_numberOfTurns;
-    m_numberOfCells = game.m_map.getNumberOfCells();
-    //
+    m_numberOfRounds = game.getNumberOfRounds();
+    m_numberOfTurns = game.getNumberOfTurns();
+    m_numberOfCells = game.getNumberOfCells();
+    initializeBuffers();
+}
+
+void GameAnalyzer::initializeBuffers()
+{
     m_q = std::vector<std::vector<double>>(m_numberOfRounds, std::vector<double>(m_numberOfGames, 0.));
     m_Q = std::vector<std::vector<double>>(m_numberOfRounds, std::vector<double>(m_numberOfGames, 0.));
     m_p = std::vector<std::vector<double>>(m_numberOfRounds, std::vector<double>(m_numberOfGames, 0.));

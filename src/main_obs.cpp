@@ -32,6 +32,10 @@ int main()
 
     // Initialize the analyzer
     GameAnalyzer analyzer(numberOfGames, numberOfPlayers);
+    {
+        Game sampleGame(numberOfRounds, numberOfPlayers);
+        analyzer.initialize(sampleGame.getNumberOfRounds(), sampleGame.getNumberOfTurns(), sampleGame.getNumberOfCells());
+    }
 
     // Loop over all repetitions of the game
 #pragma omp parallel for
